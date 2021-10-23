@@ -21,5 +21,5 @@ label_id SERIAL PRIMARY KEY,
 label varchar NOT NULL,
 india varchar,
 egypt varchar,
-singapore varchar,
+singapore varchar
 );

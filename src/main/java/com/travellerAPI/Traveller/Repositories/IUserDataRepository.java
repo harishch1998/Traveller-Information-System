@@ -14,7 +14,7 @@ public interface IUserDataRepository {
 
     List<User> getAllUsers();
 
-    Topic saveLabel(Topic topic);
+    boolean saveLabel(String label);
 
     User getUserByName(String name);
 

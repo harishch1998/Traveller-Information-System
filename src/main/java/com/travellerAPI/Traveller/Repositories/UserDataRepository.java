@@ -67,19 +67,18 @@ public class UserDataRepository implements IUserDataRepository{
     }
 
     @Override
-    public Topic saveLabel(Topic topic) {
+    public boolean saveLabel(String label) {
         logger.info("START UserDataRepository saveLabel(User)");
         Map<String, Object> params = new HashMap<>();
-        params.put("label_id", topic.getId());
-        params.put("label", topic.getLabel());
-        params.put("india", topic.getIndia());
-        params.put("egypt", topic.getEgypt());
-        params.put("singapore", topic.getSingapore());
+        params.put("label_id", (long)0);
+        params.put("label", label);
+        params.put("india", "");
+        params.put("egypt", "");
+        params.put("singapore", "");
         Number id = simpleJdbcInsertTopic.executeAndReturnKey(params);
         logger.info("Generated a new label with id:"+id.longValue());
-        topic.setId(id.longValue());
         logger.info("END UserDataRepository saveLabel(User)");
-        return topic;
+        return id.longValue() > 0;
     }
 
     @Override
