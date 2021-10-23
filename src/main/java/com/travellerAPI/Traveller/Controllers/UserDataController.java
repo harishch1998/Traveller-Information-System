@@ -35,7 +35,7 @@ public class UserDataController {
             consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     public void addLabel(String label) {
         logger.info("START UserDataController addLabel()");
-        Topic topic = new Topic((long)0, label);
+        Topic topic = new Topic((long)0, label, "", "", "");
         Topic savedTopic = userDataRepository.saveLabel(topic);
         if(savedTopic != null){
             logger.info("Saved topic successfully!"+savedTopic.getLabel());

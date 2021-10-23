@@ -64,11 +64,11 @@ public class Topic {
     }
 
     public Topic(){}
-
-    public Topic(Long id, String label) {
-        this.id = id;
-        this.label = label;
-    }
+//
+//    public Topic(Long id, String label) {
+//        this.id = id;
+//        this.label = label;
+//    }
 
     public Topic(Long id, String label, String india, String egypt, String singapore) {
         this.id = id;
