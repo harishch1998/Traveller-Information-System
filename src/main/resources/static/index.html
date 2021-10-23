@@ -1,0 +1,156 @@
+<html>
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+</head>
+    <body>
+        <h1 style="background-color: lightgray; font-style:helvetica;" align="center">TRAVELLER INFORMATION SYSTEM</h1>
+        <h3 style="border: 2px solid black; background-color: 98AFC7; height:30px; text-align:center;" align="center">PHASE 2</h3>
+        <div style="border: 2px solid black; background-color: #98AFC7" align="center" class="add-label-block">
+            <h3>ADD LABELS</h3>
+            <form action="http://localhost:8080/saveLabel" method="post">
+                <center>
+                    <div>
+                        <label for="name">Label</label>
+                        <input type="text" id="label" name="label">
+                    </div>
+                    <br/>
+                    <input style="background-color: #454545; width: 200px; height:30px; text-decoration:none;
+                    color:#FFFFFF; font-family:'Roboto',sans-serif; font-weight:500;" type="submit" value="ADD LABEL"/>
+                </center>
+            </form>
+        </div>
+        <br/>
+        <div style="border: 2px solid black;  background-color: lightgray" align="center" class="add-user-block">
+            <h3>ADD USER</h3>
+            <form action="http://localhost:8080/register" method="post">
+                <center>
+                    <div>
+                        <label for="name">User Name</label>
+                        <input type="text" id="name" name="name">
+                    </div>
+                    <br/>
+                    <div>
+                        <label>CHOOSE TOPIC</label>
+                        <input type="checkbox" name="topic" value="india" /> india
+                        <input type="checkbox" name="topic" value="egypt" /> egypt
+                        <input type="checkbox" name="topic" value="singapore" /> singapore
+                    </div>
+                    <br/>
+                    <input style="background-color: #454545; width: 200px; height:30px; text-decoration:none;
+                    color:#FFFFFF; font-family:'Roboto',sans-serif; font-weight:500;" type="submit" value="ADD USER"/>
+                </center>
+            </form>
+        </div>
+        <br/>
+        <div align="center" style="border: 2px solid black; background-color: #98AFC7;" class="display-users-block">
+            <div>
+                <h3>USER LIST</h3>
+                <span>ID &nbsp &nbsp &nbsp &nbsp NAME</span>
+                <table id="myTable" style="border: 2px solid black; background-color: #98AFC7; width:150px"></table>
+            </div>
+            <div>
+                <h3>SUBSCRIBED TOPICS</h3>
+                <span>USERID &nbsp &nbsp &nbsp &nbsp TOPIC</span>
+                <table id="mySubTable" style="border: 2px solid black; background-color: #98AFC7; width:150px"></table>
+            </div>
+        </div>
+        <br/>
+        <div align="center" style="border: 2px solid black; background-color: lightgray" class="user-topic-subscribe">
+            <h3 align="center">USER TOPIC SUBSCRIBE</h3>
+            <form action="http://localhost:8080/subscribe" method="post"><br />
+                <center>
+                    <div>
+                        <label for="uname">User Name (From the list above)</label>
+                        <input type="text" id="uname" name="name">
+                    </div>
+                    <br/>
+                    <div>
+                        <input type="checkbox" name="topic" value="india" /> india
+                        <input type="checkbox" name="topic" value="egypt" /> egypt
+                        <input type="checkbox" name="topic" value="singapore" /> singapore
+                    </div>
+                    <br/>
+                    <input style="background-color: #454545; width: 200px; height:30px; text-decoration:none;
+                    color:#FFFFFF; font-family:'Roboto',sans-serif; font-weight:500;" type="submit" value="SUBSCRIBE"/>
+                </center>
+            </form>
+        </div>
+        <div align="center" style="border: 2px solid black; background-color: #98AFC7" class="user-topic-unsubscribe">
+            <h3 align="center">USER TOPIC UNSUBSCRIBE</h3>
+            <form action="http://localhost:8080/unsubscribe" method="post"><br />
+                <center>
+                    <div>
+                        <label for="uname2">User name</label>
+                        <input type="text" id="uname2" name="name">
+                    </div>
+                    <br/>
+                    <input style="background-color: #454545; width: 200px; height:30px; text-decoration:none;
+                    color:#FFFFFF; font-family:'Roboto',sans-serif; font-weight:500;" type="submit" value="UNSUBSCRIBE"/>
+                </center>
+            </form>
+        </div>
+        <div align="center" style="border: 2px solid black; width:100%; background-color: lightgray" class="update-data-block">
+            <h3>UPDATE TOPIC DATA</h3>
+            <div style="display: inline-block">
+                <form action="http://localhost:8080/notify" method="get">
+                    <input type="submit" style="background-color: #98AFC7; width: 200px; height:30px; text-decoration:none;
+                    color:#FFFFFF; font-family:'Roboto',sans-serif; font-weight:500;" name="event" id="updateIndia" value="india"/>
+                </form>
+            </div>
+            <div style="display: inline-block">
+                <form action="http://localhost:8080/notify" method="get">
+                    <input type="submit" style="background-color: #98AFC7; width: 200px; height:30px; text-decoration:none;
+                    color:#FFFFFF; font-family:'Roboto',sans-serif; font-weight:500;" name="event" id="updateEgypt" value="egypt"/>
+                </form>
+            </div>
+            <div style="display: inline-block">
+                <form action="http://localhost:8080/notify" method="get">
+                    <input type="submit" style="background-color: #98AFC7; width: 200px; height:30px; text-decoration:none;
+                    color:#FFFFFF; font-family:'Roboto',sans-serif; font-weight:500;" name="event" id="updateSingapore" value="singapore"/>
+                </form>
+            </div>
+        </div>
+    </body>
+    <script>
+        var url  = "http://localhost:8080/users";
+        var url1 = "http://localhost:8080/subscribers";
+        var xhr  = new XMLHttpRequest()
+        xhr.open('GET', url, true)
+        xhr.onload = function () {
+            var users = JSON.parse(xhr.responseText);
+            if (xhr.readyState == 4 && xhr.status == "200") {
+            for (i = 0; i < users.length; i++) {
+                    var table = document.getElementById("myTable");
+                    var row = table.insertRow(0);
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    cell1.innerHTML = users[i].id;
+                    cell2.innerHTML = users[i].name;
+            }
+            } else {
+                console.error(users);
+            }
+        }
+        xhr.send(null);
+        var url1 = "http://localhost:8080/subscribers";
+        var xhr1  = new XMLHttpRequest()
+        xhr1.open('GET', url1, true)
+        xhr1.onload = function () {
+            var subscribers = JSON.parse(xhr1.responseText);
+            if (xhr1.readyState == 4 && xhr1.status == "200") {
+            for (i = 0; i < subscribers.length; i++) {
+                    var table = document.getElementById("mySubTable");
+                    var row = table.insertRow(0);
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    cell1.innerHTML = subscribers[i].userId;
+                    cell2.innerHTML = subscribers[i].topicName;
+            }
+            } else {
+                console.error(users);
+            }
+        }
+        xhr1.send(null);
+    </script>
+</html>

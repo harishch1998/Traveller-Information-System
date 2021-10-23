@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TravellerInformationSystemApplicationTests {
+class travellerTests {
 
 	@Test
 	void contextLoads() {
