@@ -120,7 +120,7 @@ public class UserDataController {
                 updateSingapore();
                 break;
         }
-        //This function is called repeatedly from the frontend using long polling and it checks pending notifications in the database
+        //This function is called repeatedly from the frontend using long polling, and it checks pending notifications in the database
         //Check the notification table for notification with status as PENDING and get the topic and update status to COMPLETED
         String topicPending = userDataService.checkPendingNotification();
         //Get all the subscribers for this topic

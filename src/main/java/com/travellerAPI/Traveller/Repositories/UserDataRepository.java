@@ -37,7 +37,6 @@ public class UserDataRepository implements IUserDataRepository{
         this.simpleJdbcInsertSubscription = new SimpleJdbcInsert(jdbcTemplate.getDataSource()).withTableName("subscriber_table").usingGeneratedKeyColumns("subscriber_id");
         this.simpleJdbcInsertTopic = new SimpleJdbcInsert(jdbcTemplate.getDataSource()).withTableName("topic_details").usingGeneratedKeyColumns("label_id");
         this.simpleJdbcInsertNotification = new SimpleJdbcInsert(jdbcTemplate.getDataSource()).withTableName("notifications").usingGeneratedKeyColumns("notification_id");
-
     }
 
     @Override
