@@ -28,7 +28,7 @@ public class UserDataController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserDataController.class);
     private RestTemplate restTemplate = new RestTemplate();
-
+    private List<String> topics;
     @Autowired
     private ServletWebServerApplicationContext applicationContext;
     @Autowired
@@ -42,6 +42,8 @@ public class UserDataController {
         for(String country : arr) {
             addCountry(country);
         }
+        topics.add("USA");
+        topics.add("Malaysia");
     }
 
     @PostMapping(
@@ -125,17 +127,6 @@ public class UserDataController {
     @GetMapping("/notify")
     public String sendNotifications(String event) throws JsonProcessingException {
         logger.info("START UserDataController notify()");
-//        switch (event) {
-//            case "currency" :
-//                updateCurrency();
-//                break;
-//            case "advise" :
-//                updateAdvise();
-//                break;
-//            case "vaccinations" :
-//                updateVaccinations();
-//                break;
-//        }
         //This function is called repeatedly from the frontend using long polling, and it checks pending notifications in the database
         //Check the notification table for notification with status as PENDING and get the topic and update status to COMPLETED
         int port = applicationContext.getWebServer().getPort();
@@ -190,6 +181,7 @@ public class UserDataController {
         }
         return new ObjectMapper().writeValueAsString(result);
     }
+
     private void updateCurrency() {
         logger.info("START UserDataController updateCurrency()");
         userDataService.getAllEventData("currency");
@@ -209,10 +201,18 @@ public class UserDataController {
     }
 
     @GetMapping("/advertise")
-    public String advertise() {
+    public List<String> advertise() {
         logger.info("START UserDataController advertise()");
         logger.info("END UserDataController advertise()");
-        return "INDIA, EGYPT, SINGAPORE";
+        return topics;
+    }
+
+    @PostMapping(path="/deadvertise")
+    public List<String> deadvertise() {
+        logger.info("START UserDataController advertise()");
+        logger.info("END UserDataController advertise()");
+        topics.clear();
+        return topics;
     }
 
     @RequestMapping("/hello")

@@ -5,20 +5,18 @@
     <body>
         <h1 style="background-color: lightgray; font-style:helvetica;" align="center">TRAVELLER INFORMATION SYSTEM</h1>
         <h3 style="border: 2px solid black; background-color: 98AFC7; height:30px; text-align:center;" align="center">PHASE 3</h3>
-<!--        <div style="border: 2px solid black; background-color: #98AFC7" align="center" class="add-label-block">-->
-<!--            <h3>ADD COUNTRIES(PUBLISHERS)</h3>-->
-<!--            <form action="http://localhost:8080/saveCountry" method="post">-->
-<!--                <center>-->
-<!--                    <div>-->
-<!--                        <label for="name">Country</label>-->
-<!--                        <input type="text" id="country" name="country">-->
-<!--                    </div>-->
-<!--                    <br/>-->
-<!--                    <input style="background-color: #454545; width: 200px; height:30px; text-decoration:none;-->
-<!--                    color:#FFFFFF; font-family:'Roboto',sans-serif; font-weight:500;" type="submit" value="ADD COUNTRY"/>-->
-<!--                </center>-->
-<!--            </form>-->
-<!--        </div>-->
+        <div style="border: 2px solid black; background-color: #98AFC7" align="center" class="add-label-block">
+            <h3>TOPICS ADVERTISED</h3>
+            <div>
+                <table id="myTopicTable" style="border: 2px solid black; background-color: #98AFC7; width:150px"></table>
+            </div>
+            <form action="http://localhost:8080/deadvertise" method="post">
+                <center>
+                    <input style="background-color: #454545; width: 200px; height:30px; text-decoration:none;
+                    color:#FFFFFF; font-family:'Roboto',sans-serif; font-weight:500;" type="submit" value="DEADVERTISE"/>
+                </center>
+            </form>
+        </div>
         <br/>
         <div style="border: 2px solid black;  background-color: lightgray" align="center" class="add-user-block">
             <h3>ADD USER</h3>
@@ -152,5 +150,23 @@
             }
         }
         xhr1.send(null);
+
+        var url2 = "http://localhost:8080/advertise";
+        var xhr2 = new XMLHttpRequest()
+        xhr2.open('GET', url2, true)
+        xhr2.onload = function () {
+            var topics = JSON.parse(xhr2.responseText);
+            if (xhr2.readyState == 4 && xhr2.status == "200") {
+            for (i = 0; i < topics.length; i++) {
+                    var table = document.getElementById("myTopicTable");
+                    var row = table.insertRow(0);
+                    var cell1 = row.insertCell(0);
+                    cell1.innerHTML = subscribers[i];
+            }
+            } else {
+                console.error(users);
+            }
+        }
+        xhr2.send(null);
     </script>
 </html>
