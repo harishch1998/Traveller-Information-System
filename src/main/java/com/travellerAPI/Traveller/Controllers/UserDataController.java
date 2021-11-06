@@ -125,17 +125,17 @@ public class UserDataController {
     @GetMapping("/notify")
     public String sendNotifications(String event) throws JsonProcessingException {
         logger.info("START UserDataController notify()");
-        switch (event) {
-            case "currency" :
-                updateCurrency();
-                break;
-            case "advise" :
-                updateAdvise();
-                break;
-            case "vaccinations" :
-                updateVaccinations();
-                break;
-        }
+//        switch (event) {
+//            case "currency" :
+//                updateCurrency();
+//                break;
+//            case "advise" :
+//                updateAdvise();
+//                break;
+//            case "vaccinations" :
+//                updateVaccinations();
+//                break;
+//        }
         //This function is called repeatedly from the frontend using long polling, and it checks pending notifications in the database
         //Check the notification table for notification with status as PENDING and get the topic and update status to COMPLETED
         int port = applicationContext.getWebServer().getPort();
@@ -143,21 +143,30 @@ public class UserDataController {
         if(event.equals("currency")) {
             if (port == 8080) {
                 logger.info("SENDING RESPONSE FROM:"+port);
+                updateCurrency();
                 return notifySubscribers();
             } else {
-                String brokerUrl = "http://localhost:8080/notify?event=currency";
+                String brokerUrl = "http://0.0.0.0:8080/notify?event=currency";
                 return restTemplate.getForObject(brokerUrl, String.class);
             }
         } else if(event.equals("advise")){
             if(port == 8081){
                 logger.info("SENDING RESPONSE FROM:"+port);
+                updateAdvise();
                 return notifySubscribers();
             } else {
-                String brokerUrl = "http://localhost:8081/notify?event=advise";
+                String brokerUrl = "http://0.0.0.0:8081/notify?event=advise";
                 return restTemplate.getForObject(brokerUrl, String.class);
             }
         } else {
-            return null;
+            if(port == 8082){
+                logger.info("SENDING RESPONSE FROM:"+port);
+                updateVaccinations();
+                return notifySubscribers();
+            } else {
+                String brokerUrl = "http://0.0.0.0:8081/notify?event=vaccinations";
+                return restTemplate.getForObject(brokerUrl, String.class);
+            }
         }
     }
 

@@ -12,6 +12,7 @@ services:
       - POSTGRES_USER=docker
       - POSTGRES_PASSWORD=docker
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SERVER_PORT=8080
     ports:
       - "8080:8080"
     networks:
@@ -31,8 +32,29 @@ services:
       - POSTGRES_USER=docker
       - POSTGRES_PASSWORD=docker
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SERVER_PORT=8081
     ports:
-      - "8081:8080"
+      - "8081:8081"
+    networks:
+      - broker-network
+    links:
+      - postgresdb
+
+  traveller3:
+    image: traveller.jar
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: traveller3
+    environment:
+      - DB_SERVER=postgresdb
+      - POSTGRES_DB=traveller
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SERVER_PORT=8082
+    ports:
+      - "8082:8082"
     networks:
       - broker-network
     links:
@@ -43,6 +65,8 @@ services:
     image: "postgres:9.6-alpine"
     ports:
       - "5432"
+    networks:
+      - broker-network
     environment:
       - POSTGRES_USER=docker
       - POSTGRES_PASSWORD=docker

@@ -57,7 +57,7 @@
         <br/>
         <div align="center" style="border: 2px solid black; background-color: lightgray" class="user-topic-subscribe">
             <h3 align="center">USER TOPIC SUBSCRIBE</h3>
-            <form action="http://localhost:8080/subscribe" method="post"><br />
+            <form action="http://localhost:/subscribe" method="post"><br />
                 <center>
                     <div>
                         <label for="uname">User Name (From the list above)</label>
@@ -98,13 +98,13 @@
                 </form>
             </div>
             <div style="display: inline-block">
-                <form action="http://localhost:8080/notify" method="get">
+                <form action="http://localhost:8082/notify" method="get">
                     <input type="submit" style="background-color: #98AFC7; width: 200px; height:30px; text-decoration:none;
                     color:#FFFFFF; font-family:'Roboto',sans-serif; font-weight:500;" name="event" id="updateVaccinations" value="vaccinations"/>
                 </form>
             </div>
-            <div style="display: inline-block">
-                <form action="http://localhost:8080/notify" method="get">
+            <div id="update-Advise-block" style="display: inline-block">
+                <form action="http://localhost:8081/notify" method="get">
                     <input type="submit" style="background-color: #98AFC7; width: 200px; height:30px; text-decoration:none;
                     color:#FFFFFF; font-family:'Roboto',sans-serif; font-weight:500;" name="event" id="updateAdvise" value="advise"/>
                 </form>
