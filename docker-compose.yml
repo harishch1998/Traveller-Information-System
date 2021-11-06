@@ -48,5 +48,8 @@ services:
       - POSTGRES_PASSWORD=docker
       - POSTGRES_DB=traveller
 
+networks:
+  broker-network:
+
 
 
