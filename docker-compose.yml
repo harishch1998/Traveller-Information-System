@@ -1,11 +1,11 @@
 version: "3.1"
 services:
-  traveller:
+  traveller1:
     image: traveller.jar
     build:
       context: ./
       dockerfile: Dockerfile
-    container_name: traveller
+    container_name: traveller1
     environment:
       - DB_SERVER=postgresdb
       - POSTGRES_DB=traveller
@@ -14,6 +14,27 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     ports:
       - "8080:8080"
+    networks:
+      - broker-network
+    links:
+      - postgresdb
+
+  traveller2:
+    image: traveller.jar
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: traveller2
+    environment:
+      - DB_SERVER=postgresdb
+      - POSTGRES_DB=traveller
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    ports:
+      - "8081:8080"
+    networks:
+      - broker-network
     links:
       - postgresdb
 

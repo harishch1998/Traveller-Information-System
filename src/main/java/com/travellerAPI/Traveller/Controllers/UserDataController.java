@@ -1,5 +1,6 @@
 package com.travellerAPI.Traveller.Controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travellerAPI.Traveller.Models.Subscription;
 import com.travellerAPI.Traveller.Models.Topic;
@@ -8,37 +9,51 @@ import com.travellerAPI.Traveller.Repositories.IUserDataRepository;
 import com.travellerAPI.Traveller.Services.IUserDataService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.slf4j.Logger;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.PostConstruct;
 
 @RestController
 @CrossOrigin
 public class UserDataController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserDataController.class);
+    private RestTemplate restTemplate = new RestTemplate();
 
+    @Autowired
+    private ServletWebServerApplicationContext applicationContext;
     @Autowired
     private IUserDataService userDataService;
     @Autowired
     private IUserDataRepository userDataRepository;
+
+    @PostConstruct
+    public void init() {
+        String[] arr = {"india", "egypt", "singapore"};
+        for(String country : arr) {
+            addCountry(country);
+        }
+    }
 
     @PostMapping(
             path = "/saveCountry",
             consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     public void addCountry(String country) {
         logger.info("START UserDataController addCountry()");
-        boolean savedCountry = userDataRepository.saveCountry(country);
-        if(savedCountry){
-            logger.info("Saved country successfully!"+savedCountry);
+        if(!userDataRepository.countryExists(country)){
+            boolean savedCountry = userDataRepository.saveCountry(country);
+            if(savedCountry){
+                logger.info("Saved country successfully!");
+            }
         }
         logger.info("END UserDataController addCountry()");
     }
@@ -108,7 +123,7 @@ public class UserDataController {
     }
 
     @GetMapping("/notify")
-    public List<Map<String, String>> sendNotifications(String event) {
+    public String sendNotifications(String event) throws JsonProcessingException {
         logger.info("START UserDataController notify()");
         switch (event) {
             case "currency" :
@@ -123,10 +138,33 @@ public class UserDataController {
         }
         //This function is called repeatedly from the frontend using long polling, and it checks pending notifications in the database
         //Check the notification table for notification with status as PENDING and get the topic and update status to COMPLETED
+        int port = applicationContext.getWebServer().getPort();
+        logger.info("NOW AT PORT:"+port+" AND TOPIC:"+event);
+        if(event.equals("currency")) {
+            if (port == 8080) {
+                logger.info("SENDING RESPONSE FROM:"+port);
+                return notifySubscribers();
+            } else {
+                String brokerUrl = "http://localhost:8080/notify?event=currency";
+                return restTemplate.getForObject(brokerUrl, String.class);
+            }
+        } else if(event.equals("advise")){
+            if(port == 8081){
+                logger.info("SENDING RESPONSE FROM:"+port);
+                return notifySubscribers();
+            } else {
+                String brokerUrl = "http://localhost:8081/notify?event=advise";
+                return restTemplate.getForObject(brokerUrl, String.class);
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private String notifySubscribers() throws JsonProcessingException {
         String topicPending = userDataService.checkPendingNotification();
         //Get all the subscribers for this topic
         List<User> subscribersForTopic = userDataService.getUsersBySubscription(topicPending);
-        //Get entire topic data for this topic
         Map<String, String> topicData = userDataService.getTopicData(topicPending);
         if(topicData == null)
             return null;
@@ -137,13 +175,12 @@ public class UserDataController {
             Map<String, String> map = new HashMap<>();
             map.put("user_id", String.valueOf(user.getId()));
             map.put("user_name", user.getName());
-            map.put("topic-data", mapper.convertValue(topicData, String.class));
+            String json = new ObjectMapper().writeValueAsString(topicData);
+            map.put("topic-data", json);
             result.add(map);
         }
-        logger.info("END UserDataController notify()");
-        return result;
+        return new ObjectMapper().writeValueAsString(result);
     }
-
     private void updateCurrency() {
         logger.info("START UserDataController updateCurrency()");
         userDataService.getAllEventData("currency");

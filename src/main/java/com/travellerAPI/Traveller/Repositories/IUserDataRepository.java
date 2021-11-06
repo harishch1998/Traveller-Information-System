@@ -37,4 +37,6 @@ public interface IUserDataRepository {
     User getUserById(long userId);
 
     List<Subscription> getAllSubscribers();
+
+    boolean countryExists(String country);
 }

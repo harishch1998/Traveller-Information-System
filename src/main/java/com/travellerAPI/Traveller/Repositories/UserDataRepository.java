@@ -7,6 +7,7 @@ import com.travellerAPI.Traveller.Models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -95,7 +96,7 @@ public class UserDataRepository implements IUserDataRepository{
 
     @Override
     public Topic getTopicDataForCountry(String country) {
-        logger.info("START UserDataRepository getTopicDataForLabel()");
+        logger.info("START UserDataRepository getTopicDataForCountry()");
         try{
             String query = "select * from topic_details where country = ?";
             Topic topic = jdbcTemplate.queryForObject(query, new TopicMapper(), country);
@@ -103,7 +104,7 @@ public class UserDataRepository implements IUserDataRepository{
         } catch(Exception e){
             logger.error("Exception e :"+e.getMessage());
         }
-        logger.info("END UserDataRepository getTopicDataForLabel()");
+        logger.info("END UserDataRepository getTopicDataForCountry()");
         return null;
     }
 
@@ -149,6 +150,19 @@ public class UserDataRepository implements IUserDataRepository{
     }
 
     @Override
+    public boolean countryExists(String country) {
+        try{
+            logger.info("START UserDataRepository countryExists()");
+            String query = "select * from topic_details where country = ?";
+            Topic topic = jdbcTemplate.queryForObject(query, new TopicMapper(), country);
+            logger.info("END UserDataRepository countryExists()");
+            return true;
+        } catch(EmptyResultDataAccessException e){
+            return false;
+        }
+    }
+
+    @Override
     public User getUserByName(String name) {
         logger.info("START UserDataRepository getUserByName()");
         String query = "select * from user_table where user_name = ?";
@@ -168,6 +182,8 @@ public class UserDataRepository implements IUserDataRepository{
 
     @Override
     public boolean updateTopicDetails(String topic, Map<String, String> topicData) {
+        if(topic.equals("advise"))
+            topic = "advises";
         logger.info("START UserDataRepository updateTopicDetails()");
         //if topic is currency update currency column for all three countries
         int updatedIndia = 0, updatedEgypt = 0, updatedSingapore = 0;
@@ -178,7 +194,7 @@ public class UserDataRepository implements IUserDataRepository{
             updatedSingapore = jdbcTemplate.update(updateSingaporeQuery, topicData.get("singaporeCurrency"));
             String updateEgyptQuery = "UPDATE topic_details SET "+topic+" = ? WHERE country = \'egypt\'";
             updatedEgypt = jdbcTemplate.update(updateEgyptQuery, topicData.get("egyptCurrency"));
-        } else if(topic.equals("advise")){
+        } else if(topic.equals("advises")){
             String updateIndiaQuery = "UPDATE topic_details SET "+topic+" = ? WHERE country = \'india\'";
             updatedIndia = jdbcTemplate.update(updateIndiaQuery, topicData.get("indiaAdviseFinal"));
             String updateSingaporeQuery = "UPDATE topic_details SET "+topic+" = ? WHERE country = \'singapore\'";

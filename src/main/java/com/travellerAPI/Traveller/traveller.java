@@ -10,5 +10,4 @@ public class traveller {
 	public static void main(String[] args) {
 		SpringApplication.run(traveller.class, args);
 	}
-
 }
