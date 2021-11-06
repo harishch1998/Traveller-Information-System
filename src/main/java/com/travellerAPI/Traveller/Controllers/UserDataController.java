@@ -146,7 +146,7 @@ public class UserDataController {
                 updateCurrency();
                 return notifySubscribers();
             } else {
-                String brokerUrl = "http://0.0.0.0:8080/notify?event=currency";
+                String brokerUrl = "http://currency-broker:8080/notify?event=currency";
                 return restTemplate.getForObject(brokerUrl, String.class);
             }
         } else if(event.equals("advise")){
@@ -155,7 +155,7 @@ public class UserDataController {
                 updateAdvise();
                 return notifySubscribers();
             } else {
-                String brokerUrl = "http://0.0.0.0:8081/notify?event=advise";
+                String brokerUrl = "http://advise-broker:8081/notify?event=advise";
                 return restTemplate.getForObject(brokerUrl, String.class);
             }
         } else {
@@ -164,7 +164,7 @@ public class UserDataController {
                 updateVaccinations();
                 return notifySubscribers();
             } else {
-                String brokerUrl = "http://0.0.0.0:8081/notify?event=vaccinations";
+                String brokerUrl = "http://vaccinations-broker:8082/notify?event=vaccinations";
                 return restTemplate.getForObject(brokerUrl, String.class);
             }
         }

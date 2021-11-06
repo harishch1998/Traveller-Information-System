@@ -1,11 +1,11 @@
 version: "3.1"
 services:
-  traveller1:
+  currency-broker:
     image: traveller.jar
     build:
       context: ./
       dockerfile: Dockerfile
-    container_name: traveller1
+    container_name: currency-broker
     environment:
       - DB_SERVER=postgresdb
       - POSTGRES_DB=traveller
@@ -20,12 +20,12 @@ services:
     links:
       - postgresdb
 
-  traveller2:
+  advise-broker:
     image: traveller.jar
     build:
       context: ./
       dockerfile: Dockerfile
-    container_name: traveller2
+    container_name: advise-broker
     environment:
       - DB_SERVER=postgresdb
       - POSTGRES_DB=traveller
@@ -40,12 +40,12 @@ services:
     links:
       - postgresdb
 
-  traveller3:
+  vaccinations-broker:
     image: traveller.jar
     build:
       context: ./
       dockerfile: Dockerfile
-    container_name: traveller3
+    container_name: vaccinations-broker
     environment:
       - DB_SERVER=postgresdb
       - POSTGRES_DB=traveller
