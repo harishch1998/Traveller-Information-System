@@ -14,7 +14,7 @@ public interface IUserDataRepository {
 
     List<User> getAllUsers();
 
-    boolean saveLabel(String label);
+    boolean saveCountry(String country);
 
     User getUserByName(String name);
 
@@ -28,7 +28,7 @@ public interface IUserDataRepository {
 
     Notification addNotification(Notification notification);
 
-    Topic getTopicDataForLabel(String label);
+    Topic getTopicDataForCountry(String country);
 
     Notification checkPendingNotification();
 

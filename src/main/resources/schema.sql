@@ -19,7 +19,7 @@ status varchar NOT NULL
 create table topic_details(
 label_id SERIAL PRIMARY KEY,
 label varchar NOT NULL,
-india varchar,
-egypt varchar,
-singapore varchar
+currency varchar,
+vaccinations varchar,
+advises varchar
 );

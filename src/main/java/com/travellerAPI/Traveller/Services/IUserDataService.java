@@ -22,12 +22,13 @@ public interface IUserDataService {
 
     Map<String, String> getTopicData(String topicPending);
 
-    void getIndiaEventData();
+    String getIndiaEventData();
 
-    void getEgyptEventData();
-
+    String getEgyptEventData();
     //@Scheduled(fixedRate = 50000)
-    void getSingaporeEventData();
+    String getSingaporeEventData();
+
+    void getAllEventData(String topic);
 
     List<Subscription> getAllSubscribers();
 }

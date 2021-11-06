@@ -1,5 +1,6 @@
 package com.travellerAPI.Traveller.Controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travellerAPI.Traveller.Models.Subscription;
 import com.travellerAPI.Traveller.Models.Topic;
 import com.travellerAPI.Traveller.Models.User;
@@ -31,15 +32,15 @@ public class UserDataController {
     private IUserDataRepository userDataRepository;
 
     @PostMapping(
-            path = "/saveLabel",
+            path = "/saveCountry",
             consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
-    public void addLabel(String label) {
-        logger.info("START UserDataController addLabel()");
-        boolean savedTopic = userDataRepository.saveLabel(label);
-        if(savedTopic){
-            logger.info("Saved topic successfully!"+savedTopic);
+    public void addCountry(String country) {
+        logger.info("START UserDataController addCountry()");
+        boolean savedCountry = userDataRepository.saveCountry(country);
+        if(savedCountry){
+            logger.info("Saved country successfully!"+savedCountry);
         }
-        logger.info("END UserDataController addLabel()");
+        logger.info("END UserDataController addCountry()");
     }
 
     @PostMapping(
@@ -110,14 +111,14 @@ public class UserDataController {
     public List<Map<String, String>> sendNotifications(String event) {
         logger.info("START UserDataController notify()");
         switch (event) {
-            case "india" :
-                updateIndia();
+            case "currency" :
+                updateCurrency();
                 break;
-            case "egypt" :
-                updateEgypt();
+            case "advise" :
+                updateAdvise();
                 break;
-            case "singapore" :
-                updateSingapore();
+            case "vaccinations" :
+                updateVaccinations();
                 break;
         }
         //This function is called repeatedly from the frontend using long polling, and it checks pending notifications in the database
@@ -129,38 +130,36 @@ public class UserDataController {
         Map<String, String> topicData = userDataService.getTopicData(topicPending);
         if(topicData == null)
             return null;
+        ObjectMapper mapper = new ObjectMapper();
         List<Map<String, String>> result = new ArrayList<>();
         //returns the topic data related to those pending notifications
         for(User user : subscribersForTopic) {
             Map<String, String> map = new HashMap<>();
             map.put("user_id", String.valueOf(user.getId()));
             map.put("user_name", user.getName());
-            map.put("topic_name", topicPending);
-            map.put("currency", topicData.get("currency"));
-            map.put("vaccinations", topicData.get("vaccinations"));
-            map.put("advise", topicData.get("advise"));
+            map.put("topic-data", mapper.convertValue(topicData, String.class));
             result.add(map);
         }
         logger.info("END UserDataController notify()");
         return result;
     }
 
-    private void updateIndia() {
-        logger.info("START UserDataController updateIndia()");
-        userDataService.getIndiaEventData();
-        logger.info("END UserDataController updateIndia()");
+    private void updateCurrency() {
+        logger.info("START UserDataController updateCurrency()");
+        userDataService.getAllEventData("currency");
+        logger.info("END UserDataController updateCurrency()");
     }
 
-    private void updateEgypt() {
-        logger.info("START UserDataController updateEgypt()");
-        userDataService.getEgyptEventData();
-        logger.info("END UserDataController updateEgypt()");
+    private void updateAdvise() {
+        logger.info("START UserDataController updateAdvise()");
+        userDataService.getAllEventData("advise");
+        logger.info("END UserDataController updateAdvise()");
     }
 
-    private void updateSingapore() {
-        logger.info("START UserDataController updateSingapore()");
-        userDataService.getSingaporeEventData();
-        logger.info("END UserDataController updateSingapore()");
+    private void updateVaccinations() {
+        logger.info("START UserDataController updateVaccinations()");
+        userDataService.getAllEventData("vaccinations");
+        logger.info("END UserDataController updateVaccinations()");
     }
 
     @GetMapping("/advertise")

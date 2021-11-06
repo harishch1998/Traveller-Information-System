@@ -66,14 +66,14 @@ public class UserDataRepository implements IUserDataRepository{
     }
 
     @Override
-    public boolean saveLabel(String label) {
+    public boolean saveCountry(String country) {
         logger.info("START UserDataRepository saveLabel(User)");
         Map<String, Object> params = new HashMap<>();
         params.put("label_id", (long)0);
-        params.put("label", label);
-        params.put("india", "");
-        params.put("egypt", "");
-        params.put("singapore", "");
+        params.put("country", country);
+        params.put("currency", "");
+        params.put("advises", "");
+        params.put("vaccinations", "");
         Number id = simpleJdbcInsertTopic.executeAndReturnKey(params);
         logger.info("Generated a new label with id:"+id.longValue());
         logger.info("END UserDataRepository saveLabel(User)");
@@ -94,11 +94,11 @@ public class UserDataRepository implements IUserDataRepository{
     }
 
     @Override
-    public Topic getTopicDataForLabel(String label) {
+    public Topic getTopicDataForCountry(String country) {
         logger.info("START UserDataRepository getTopicDataForLabel()");
         try{
-            String query = "select * from topic_details where label = ?";
-            Topic topic = jdbcTemplate.queryForObject(query, new TopicMapper(), label);
+            String query = "select * from topic_details where country = ?";
+            Topic topic = jdbcTemplate.queryForObject(query, new TopicMapper(), country);
             return topic;
         } catch(Exception e){
             logger.error("Exception e :"+e.getMessage());
@@ -169,14 +169,32 @@ public class UserDataRepository implements IUserDataRepository{
     @Override
     public boolean updateTopicDetails(String topic, Map<String, String> topicData) {
         logger.info("START UserDataRepository updateTopicDetails()");
-        String updateCurrencyQuery = "UPDATE topic_details SET "+topic+" = ? WHERE label = \'currency\'";
-        int updatedCurrency = jdbcTemplate.update(updateCurrencyQuery, topicData.get("currency"));
-        String updateVaccinationsQuery = "UPDATE topic_details SET "+topic+" = ? WHERE label = \'vaccinations\'";
-        int updatedVaccinations = jdbcTemplate.update(updateVaccinationsQuery, topicData.get("vaccinations"));
-        String updateAdviseQuery = "UPDATE topic_details SET "+topic+" = ? WHERE label = \'advise\'";
-        int updatedAdvise = jdbcTemplate.update(updateAdviseQuery, topicData.get("advise"));
+        //if topic is currency update currency column for all three countries
+        int updatedIndia = 0, updatedEgypt = 0, updatedSingapore = 0;
+        if(topic.equals("currency")){
+            String updateIndiaQuery = "UPDATE topic_details SET "+topic+" = ? WHERE country = \'india\'";
+            updatedIndia = jdbcTemplate.update(updateIndiaQuery, topicData.get("indiaCurrency"));
+            String updateSingaporeQuery = "UPDATE topic_details SET "+topic+" = ? WHERE country = \'singapore\'";
+            updatedSingapore = jdbcTemplate.update(updateSingaporeQuery, topicData.get("singaporeCurrency"));
+            String updateEgyptQuery = "UPDATE topic_details SET "+topic+" = ? WHERE country = \'egypt\'";
+            updatedEgypt = jdbcTemplate.update(updateEgyptQuery, topicData.get("egyptCurrency"));
+        } else if(topic.equals("advise")){
+            String updateIndiaQuery = "UPDATE topic_details SET "+topic+" = ? WHERE country = \'india\'";
+            updatedIndia = jdbcTemplate.update(updateIndiaQuery, topicData.get("indiaAdviseFinal"));
+            String updateSingaporeQuery = "UPDATE topic_details SET "+topic+" = ? WHERE country = \'singapore\'";
+            updatedSingapore = jdbcTemplate.update(updateSingaporeQuery, topicData.get("singaporeAdviseFinal"));
+            String updateEgyptQuery = "UPDATE topic_details SET "+topic+" = ? WHERE country = \'egypt\'";
+            updatedEgypt = jdbcTemplate.update(updateEgyptQuery, topicData.get("egyptAdviseFinal"));
+        } else {
+            String updateIndiaQuery = "UPDATE topic_details SET "+topic+" = ? WHERE country = \'india\'";
+            updatedIndia = jdbcTemplate.update(updateIndiaQuery, topicData.get("indiaFinalVaccinations"));
+            String updateSingaporeQuery = "UPDATE topic_details SET "+topic+" = ? WHERE country = \'singapore\'";
+            updatedSingapore = jdbcTemplate.update(updateSingaporeQuery, topicData.get("singaporeFinalVaccinations"));
+            String updateEgyptQuery = "UPDATE topic_details SET "+topic+" = ? WHERE country = \'egypt\'";
+            updatedEgypt = jdbcTemplate.update(updateEgyptQuery, topicData.get("egyptFinalVaccinations"));
+        }
         logger.info("END UserDataRepository updateTopicDetails()");
-        return updatedCurrency > 0 && updatedVaccinations > 0 && updatedAdvise > 0;
+        return updatedIndia > 0 && updatedSingapore > 0 && updatedEgypt > 0;
     }
 
     @Override
@@ -229,10 +247,10 @@ public class UserDataRepository implements IUserDataRepository{
         public Topic mapRow(ResultSet rs, int rowNum) throws SQLException{
             Topic topic = new Topic();
             topic.setId(rs.getLong("label_id"));
-            topic.setLabel(rs.getString("label"));
-            topic.setIndia(rs.getString("india"));
-            topic.setEgypt(rs.getString("egypt"));
-            topic.setSingapore(rs.getString("singapore"));
+            topic.setCountry(rs.getString("country"));
+            topic.setCurrency(rs.getString("currency"));
+            topic.setAdvise(rs.getString("advises"));
+            topic.setVaccinations(rs.getString("vaccinations"));
             return topic;
         }
     }

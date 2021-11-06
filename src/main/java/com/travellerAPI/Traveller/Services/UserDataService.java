@@ -97,93 +97,147 @@ public class UserDataService implements IUserDataService {
 
     @Override
     public Map<String, String> getTopicData(String topicPending) {
-        Topic topicCurrency = userDataRepository.getTopicDataForLabel("currency");
-        Topic topicVaccinations = userDataRepository.getTopicDataForLabel("vaccinations");
-        Topic topicAdvise = userDataRepository.getTopicDataForLabel("advise");
+        Topic topicsIndia = userDataRepository.getTopicDataForCountry("india");
+        Topic topicsEgypt = userDataRepository.getTopicDataForCountry("egypt");
+        Topic topicsSingapore = userDataRepository.getTopicDataForCountry("singapore");
         Map<String, String> map = new HashMap<>();
-        if(topicCurrency == null || topicVaccinations == null || topicAdvise == null)
+        if(topicsIndia == null || topicsEgypt == null || topicsSingapore == null)
             return null;
         switch(topicPending){
-            case "india":
-                map.put("currency", topicCurrency.getIndia());
-                map.put("vaccinations", topicVaccinations.getIndia());
-                map.put("advise", topicAdvise.getIndia());
+            case "currency":
+                map.put("india-currency", topicsIndia.getCurrency());
+                map.put("egypt-currency", topicsEgypt.getCurrency());
+                map.put("singapore-currency", topicsSingapore.getCurrency());
                 break;
-            case "egypt":
-                map.put("currency", topicCurrency.getEgypt());
-                map.put("vaccinations", topicVaccinations.getEgypt());
-                map.put("advise", topicAdvise.getEgypt());
+            case "advise":
+                map.put("india-advise", topicsIndia.getAdvise());
+                map.put("egypt-advise", topicsEgypt.getAdvise());
+                map.put("singapore-advise", topicsSingapore.getAdvise());
                 break;
-            case "singapore":
-                map.put("currency", topicCurrency.getSingapore());
-                map.put("vaccinations", topicVaccinations.getSingapore());
-                map.put("advise", topicAdvise.getSingapore());
+            case "vaccinations":
+                map.put("india-vaccinations", topicsIndia.getVaccinations());
+                map.put("egypt-vaccinations", topicsEgypt.getVaccinations());
+                map.put("singapore-vaccinations", topicsSingapore.getVaccinations());
                 break;
         }
         return map;
     }
 
-    //@Scheduled(fixedRate = 2000)
-    public void sayHello() {
-        logger.info("Hello from our simple scheduled method");
+    @Override
+    public void getAllEventData(String topic){
+        //get event data from external API and publish event
+        String indiaDataJsonString = getIndiaEventData();
+        String egyptDataJsonString = getEgyptEventData();
+        String singaporeDataJsonString = getSingaporeEventData();
+        publish(indiaDataJsonString, egyptDataJsonString, singaporeDataJsonString, topic);
     }
 
     @Override
-    public void getIndiaEventData() {
-        logger.info("Hello from our simple scheduled method for India data");
+    public String getIndiaEventData() {
         String urlIndia = "https://travelbriefing.org/India?format=json";
         String indiaDataJsonString = restTemplate.getForObject(urlIndia, String.class);
-        //get event data from external API and publish event
-        publish(indiaDataJsonString, "india");
+        //publish(indiaDataJsonString, "india");
+        return indiaDataJsonString;
     }
 
     @Override
-    public void getEgyptEventData() {
+    public String getEgyptEventData() {
         String urlEgypt = "https://travelbriefing.org/Egypt?format=json";
         String egyptDataJsonString = restTemplate.getForObject(urlEgypt, String.class);
-        publish(egyptDataJsonString, "egypt");
+        //publish(egyptDataJsonString, "egypt");
+        return egyptDataJsonString;
     }
-
     //@Scheduled(fixedRate = 50000)
     @Override
-    public void getSingaporeEventData() {
+    public String getSingaporeEventData() {
         String urlSingapore = "https://travelbriefing.org/Singapore?format=json";
         String singaporeDataJsonString = restTemplate.getForObject(urlSingapore, String.class);
-        publish(singaporeDataJsonString, "singapore");
+        //publish(singaporeDataJsonString, "singapore");
+        return singaporeDataJsonString;
     }
 
-
-    public void publish(String jsonData, String topic) {
+    public void publish(String indiaJsonData, String egyptJsonData, String singaporeJsonData, String topic) {
         //This method populates the database with the newly fetched data and marks status to pending for the notified column
-        //topics are : INDIA, EGYPT, SINGAPORE
-        //we filter out currency, vaccinations and advise for these topics.
+        //topics are : currency, advise, vaccinations
+        //we filter out india, egypt and singapore data for these topics
         //convert these String json to Map<String, Object> using object mapper
         ObjectMapper mapper = new ObjectMapper();
         try {
-            Map<String, Object> dataMap = mapper.readValue(jsonData, Map.class);
-            //get to USD currency data
-            Map<String, Object> currencyObj = (Map<String, Object>) dataMap.get("currency");
-            String currency = String.valueOf(currencyObj.get("rate"));
-            //get vaccinations data
-            StringBuilder finalVaccinations = new StringBuilder();
-            List<Map<String, Object>> vaccinations = (List<Map<String, Object>>) dataMap.get("vaccinations");
-            for(Map<String, Object> v : vaccinations) {
-                String name = String.valueOf(v.get("name"));
-                finalVaccinations.append(name+", ");
-            }
-            finalVaccinations.deleteCharAt(finalVaccinations.length()-1);
-            //get advise
-            Map<String, Object> adviseObj = (Map<String, Object>) dataMap.get("advise");
-            Map<String, Object> UAObj = (Map<String, Object>) adviseObj.get("UA");
-            Map<String, Object> CAObj = (Map<String, Object>) adviseObj.get("CA");
-            Object uaAdv = UAObj.get("advise");
-            Object caAdv = CAObj.get("advise");
-            String adviseFinal = String.valueOf(uaAdv) + ". " + String.valueOf(caAdv);
+            Map<String, Object> indiaDataMap = mapper.readValue(indiaJsonData, Map.class);
+            Map<String, Object> egyptDataMap = mapper.readValue(egyptJsonData, Map.class);
+            Map<String, Object> singaporeDataMap = mapper.readValue(singaporeJsonData, Map.class);
 
             Map<String, String> topicData = new HashMap<>();
-            topicData.put("currency", currency);
-            topicData.put("vaccinations", String.valueOf(finalVaccinations));
-            topicData.put("advise", adviseFinal);
+            if(topic.equals("currency")){
+                //get to USD currency data
+                Map<String, Object> indiaCurrencyObj = (Map<String, Object>) indiaDataMap.get("currency");
+                String indiaCurrency = String.valueOf(indiaCurrencyObj.get("rate"));
+
+                Map<String, Object> egyptCurrencyObj = (Map<String, Object>) egyptDataMap.get("currency");
+                String egyptCurrency = String.valueOf(egyptCurrencyObj.get("rate"));
+
+                Map<String, Object> singaporeCurrencyObj = (Map<String, Object>) singaporeDataMap.get("currency");
+                String singaporeCurrency = String.valueOf(singaporeCurrencyObj.get("rate"));
+
+                topicData.put("indiaCurrency", indiaCurrency);
+                topicData.put("egyptCurrency", egyptCurrency);
+                topicData.put("singaporeCurrency", singaporeCurrency);
+            } else if(topic.equals("advise")){
+                //get advise
+                Map<String, Object> indiaAdviseObj = (Map<String, Object>) indiaDataMap.get("advise");
+                Map<String, Object> indiaUAObj = (Map<String, Object>) indiaAdviseObj.get("UA");
+                Map<String, Object> indiaCAObj = (Map<String, Object>) indiaAdviseObj.get("CA");
+                Object indiaUaAdv = indiaUAObj.get("advise");
+                Object indiaCaAdv = indiaCAObj.get("advise");
+                String indiaAdviseFinal = String.valueOf(indiaUaAdv) + ". " + String.valueOf(indiaCaAdv);
+
+                Map<String, Object> egyptAdviseObj = (Map<String, Object>) egyptDataMap.get("advise");
+                Map<String, Object> egyptUAObj = (Map<String, Object>) egyptAdviseObj.get("UA");
+                Map<String, Object> egyptCAObj = (Map<String, Object>) egyptAdviseObj.get("CA");
+                Object egyptUaAdv = egyptUAObj.get("advise");
+                Object egyptCaAdv = egyptCAObj.get("advise");
+                String egyptAdviseFinal = String.valueOf(egyptUaAdv) + ". " + String.valueOf(egyptCaAdv);
+
+                Map<String, Object> singaporeAdviseObj = (Map<String, Object>) singaporeDataMap.get("advise");
+                Map<String, Object> singaporeUAObj = (Map<String, Object>) singaporeAdviseObj.get("UA");
+                Map<String, Object> singaporeCAObj = (Map<String, Object>) singaporeAdviseObj.get("CA");
+                Object singaporeUaAdv = singaporeUAObj.get("advise");
+                Object singaporeCaAdv = singaporeCAObj.get("advise");
+                String singaporeAdviseFinal = String.valueOf(singaporeUaAdv) + ". " + String.valueOf(singaporeCaAdv);
+
+                topicData.put("indiaAdviseFinal", indiaAdviseFinal);
+                topicData.put("egyptAdviseFinal", egyptAdviseFinal);
+                topicData.put("singaporeAdviseFinal", singaporeAdviseFinal);
+            } else{
+                //get vaccinations data
+                StringBuilder indiaFinalVaccinations = new StringBuilder();
+                List<Map<String, Object>> indiaVaccinations = (List<Map<String, Object>>) indiaDataMap.get("vaccinations");
+                for(Map<String, Object> v : indiaVaccinations) {
+                    String name = String.valueOf(v.get("name"));
+                    indiaFinalVaccinations.append(name+", ");
+                }
+                indiaFinalVaccinations.deleteCharAt(indiaFinalVaccinations.length()-1);
+
+                StringBuilder egyptFinalVaccinations = new StringBuilder();
+                List<Map<String, Object>> egyptVaccinations = (List<Map<String, Object>>) egyptDataMap.get("vaccinations");
+                for(Map<String, Object> v : egyptVaccinations) {
+                    String name = String.valueOf(v.get("name"));
+                    egyptFinalVaccinations.append(name+", ");
+                }
+                egyptFinalVaccinations.deleteCharAt(egyptFinalVaccinations.length()-1);
+
+                StringBuilder singaporeFinalVaccinations = new StringBuilder();
+                List<Map<String, Object>> singaporeVaccinations = (List<Map<String, Object>>) singaporeDataMap.get("vaccinations");
+                for(Map<String, Object> v : singaporeVaccinations) {
+                    String name = String.valueOf(v.get("name"));
+                    singaporeFinalVaccinations.append(name+", ");
+                }
+                singaporeFinalVaccinations.deleteCharAt(singaporeFinalVaccinations.length()-1);
+
+                topicData.put("indiaFinalVaccinations", String.valueOf(indiaFinalVaccinations));
+                topicData.put("singaporeFinalVaccinations", String.valueOf(singaporeFinalVaccinations));
+                topicData.put("egyptFinalVaccinations", String.valueOf(egyptFinalVaccinations));
+            }
             //update all these details for topic = country in the database
             userDataRepository.updateTopicDetails(topic, topicData);
             //add notification with pending status for topic
