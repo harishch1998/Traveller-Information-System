@@ -42,6 +42,7 @@ public class UserDataController {
         for(String country : arr) {
             addCountry(country);
         }
+        topics = new ArrayList<>();
         topics.add("USA");
         topics.add("Malaysia");
     }
